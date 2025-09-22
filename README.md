@@ -48,8 +48,8 @@ EMPRENDE-DIGITAL
 
 ### 1️⃣ Clonar el repositorio
 ```bash
-git clone <url-del-repo>
-cd EMPRENDE-DIGITAL
+git clone https://github.com/Jhuly1215/EmprendeDigital.git
+cd EmprendeDigital
 ```
 ---
 ### 2️⃣ Configuración del Backend
