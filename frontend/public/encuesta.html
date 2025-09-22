@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Encuesta - Emprende Digital</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <main class="survey-main">
+        <div class="container">
+            <div class="survey-header">
+                <h1>Encuesta de Emprendimiento Digital</h1>
+                <p>Responde estas preguntas para obtener recomendaciones personalizadas</p>
+            </div>
+            
+            <div class="survey-container" id="surveyContainer">
+                <div class="loading">Cargando encuesta...</div>
+            </div>
+            
+            <div class="survey-actions" id="surveyActions" style="display: none;">
+                <button type="button" class="btn btn-primary btn-large" id="submitSurvey">
+                    Enviar respuestas
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/api.js"></script>
+    <script type="module">
+        import { mountNavbar } from './js/ui.js';
+        import { requireAuth, getUser } from './js/auth.js';
+        import { getSurvey, saveResponses } from './js/api.js';
+        
+        // Require authentication
+        requireAuth('/encuesta.html');
+        
+        // Initialize navbar
+        mountNavbar('encuesta');
+        
+        let surveyData = null;
+        let answers = {};
+        
+        async function loadSurvey() {
+            try {
+                const result = await getSurvey();
+                if (result.survey && result.questions) {
+                    surveyData = result;
+                    renderSurvey(result.questions);
+                } else {
+                    throw new Error('Error al cargar la encuesta');
+                }
+            } catch (error) {
+                document.getElementById('surveyContainer').innerHTML = 
+                    '<div class="error">Error al cargar la encuesta. Intenta recargar la página.</div>';
+            }
+        }
+        
+        function renderSurvey(questions) {
+            const container = document.getElementById('surveyContainer');
+            const actionsContainer = document.getElementById('surveyActions');
+            
+            const questionsHTML = questions.map(question => `
+                <div class="question-card" data-question-id="${question.id}">
+                    <h3>Pregunta ${question.q_number}</h3>
+                    <p class="question-text">${question.text}</p>
+                    <div class="options">
+                        ${question.options.map(option => `
+                            <label class="option-label">
+                                <input type="radio" name="question_${question.id}" value="${option.id}" data-code="${option.code}">
+                                <span class="option-text">${option.code}. ${option.text}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = questionsHTML;
+            actionsContainer.style.display = 'block';
+            
+            // Add event listeners to track answers
+            const radioInputs = container.querySelectorAll('input[type="radio"]');
+            radioInputs.forEach(input => {
+                input.addEventListener('change', (e) => {
+                    const questionId = parseInt(e.target.name.split('_')[1]);
+                    const optionId = parseInt(e.target.value);
+                    answers[questionId] = optionId;
+                    
+                    // Check if all questions are answered
+                    updateSubmitButton();
+                });
+            });
+        }
+        
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitSurvey');
+            const totalQuestions = surveyData ? surveyData.questions.length : 0;
+            const answeredQuestions = Object.keys(answers).length;
+            
+            if (answeredQuestions === totalQuestions) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Enviar respuestas';
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.textContent = `Respuestas: ${answeredQuestions}/${totalQuestions}`;
+            }
+        }
+        
+        // Submit survey handler
+        document.getElementById('submitSurvey').addEventListener('click', async () => {
+            const submitBtn = document.getElementById('submitSurvey');
+            const originalText = submitBtn.textContent;
+            
+            if (Object.keys(answers).length !== surveyData.questions.length) {
+                alert('Por favor responde todas las preguntas antes de enviar.');
+                return;
+            }
+            
+            submitBtn.textContent = 'Enviando...';
+            submitBtn.disabled = true;
+            
+            try {
+                const answersArray = Object.entries(answers).map(([questionId, optionId]) => ({
+                    question_id: parseInt(questionId),
+                    option_id: optionId
+                }));
+                
+                const result = await saveResponses(answersArray);
+                if (result.ok) {
+                    const user = getUser();
+                    window.location.href = `/resultados.html?user_id=${user.id}`;
+                } else {
+                    alert(result.error || 'Error al enviar las respuestas');
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            } catch (error) {
+                alert('Error de conexión. Intenta nuevamente.');
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+        
+        // Load survey on page load
+        loadSurvey();
+    </script>
+</body>
+</html>

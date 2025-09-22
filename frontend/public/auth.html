@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autenticación - Emprende Digital</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <main class="auth-main">
+        <div class="container">
+            <div class="auth-container">
+                <div class="auth-forms">
+                    <!-- Login Form -->
+                    <div class="auth-form" id="loginForm">
+                        <h2>Iniciar Sesión</h2>
+                        <form id="loginFormElement">
+                            <div class="form-group">
+                                <label for="loginEmail">Correo electrónico</label>
+                                <input type="email" id="loginEmail" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="loginPassword">Contraseña</label>
+                                <input type="password" id="loginPassword" name="password" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full" id="loginBtn">
+                                Iniciar Sesión
+                            </button>
+                        </form>
+                        <p class="auth-switch">
+                            ¿No tienes cuenta? 
+                            <a href="#register" id="showRegister">Regístrate aquí</a>
+                        </p>
+                    </div>
+
+                    <!-- Register Form -->
+                    <div class="auth-form" id="registerForm">
+                        <h2>Crear Cuenta</h2>
+                        <form id="registerFormElement">
+                            <div class="form-group">
+                                <label for="registerName">Nombre completo</label>
+                                <input type="text" id="registerName" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerEmail">Correo electrónico</label>
+                                <input type="email" id="registerEmail" name="email" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="registerPassword">Contraseña</label>
+                                <input type="password" id="registerPassword" name="password" required minlength="6">
+                            </div>
+                            <div class="form-group">
+                                <label for="registerConfirmPassword">Confirmar contraseña</label>
+                                <input type="password" id="registerConfirmPassword" name="confirmPassword" required minlength="6">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-full" id="registerBtn">
+                                Crear Cuenta
+                            </button>
+                        </form>
+                        <p class="auth-switch">
+                            ¿Ya tienes cuenta? 
+                            <a href="#login" id="showLogin">Inicia sesión aquí</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/auth.js"></script>
+    <script type="module" src="js/api.js"></script>
+    <script type="module">
+        import { mountNavbar } from './js/ui.js';
+        import { setSession, isLogged } from './js/auth.js';
+        import { login, register } from './js/api.js';
+        
+        // Initialize navbar
+        mountNavbar();
+        
+        // Check if already logged in
+        if (isLogged()) {
+            const urlParams = new URLSearchParams(window.location.search);
+            const next = urlParams.get('next') || '/encuesta.html';
+            window.location.href = next;
+        }
+        
+        // Form switching
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const showRegister = document.getElementById('showRegister');
+        const showLogin = document.getElementById('showLogin');
+        
+        function showLoginForm() {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            window.location.hash = 'login';
+        }
+        
+        function showRegisterForm() {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            window.location.hash = 'register';
+            document.getElementById('registerName').focus();
+        }
+        
+        showRegister.addEventListener('click', (e) => {
+            e.preventDefault();
+            showRegisterForm();
+        });
+        
+        showLogin.addEventListener('click', (e) => {
+            e.preventDefault();
+            showLoginForm();
+        });
+        
+        // Check hash on load
+        if (window.location.hash === '#register') {
+            showRegisterForm();
+        } else {
+            showLoginForm();
+        }
+        
+        // Login form handler
+        document.getElementById('loginFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const loginBtn = document.getElementById('loginBtn');
+            const originalText = loginBtn.textContent;
+            loginBtn.textContent = 'Iniciando sesión...';
+            loginBtn.disabled = true;
+            
+            const formData = new FormData(e.target);
+            const email = formData.get('email');
+            const password = formData.get('password');
+            
+            try {
+                const result = await login(email, password);
+                if (result.ok) {
+                    setSession({ token: result.token, user: result.user });
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const next = urlParams.get('next') || '/encuesta.html';
+                    window.location.href = next;
+                } else {
+                    alert(result.error || 'Error al iniciar sesión');
+                }
+            } catch (error) {
+                alert('Error de conexión. Intenta nuevamente.');
+            } finally {
+                loginBtn.textContent = originalText;
+                loginBtn.disabled = false;
+            }
+        });
+        
+        // Register form handler
+        document.getElementById('registerFormElement').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const registerBtn = document.getElementById('registerBtn');
+            const originalText = registerBtn.textContent;
+            registerBtn.textContent = 'Creando cuenta...';
+            registerBtn.disabled = true;
+            
+            const formData = new FormData(e.target);
+            const name = formData.get('name');
+            const email = formData.get('email');
+            const password = formData.get('password');
+            const confirmPassword = formData.get('confirmPassword');
+            
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                registerBtn.textContent = originalText;
+                registerBtn.disabled = false;
+                return;
+            }
+            
+            try {
+                const result = await register(name, email, password);
+                if (result.ok) {
+                    setSession({ token: result.token, user: result.user });
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const next = urlParams.get('next') || '/encuesta.html';
+                    window.location.href = next;
+                } else {
+                    alert(result.error || 'Error al crear la cuenta');
+                }
+            } catch (error) {
+                alert('Error de conexión. Intenta nuevamente.');
+            } finally {
+                registerBtn.textContent = originalText;
+                registerBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

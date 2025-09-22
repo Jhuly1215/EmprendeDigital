@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sugerencias - Emprende Digital</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <main class="suggestions-main">
+        <div class="container">
+            <div class="page-header">
+                <h1>Plataformas y Herramientas</h1>
+                <p>Descubre las mejores plataformas y herramientas para tu emprendimiento digital</p>
+            </div>
+            
+            <div class="platforms-container" id="platformsContainer">
+                <div class="loading">Cargando plataformas...</div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/api.js"></script>
+    <script type="module">
+        import { mountNavbar, syncNav } from './js/ui.js';
+        import { listPlatforms } from './js/api.js';
+        
+        mountNavbar('sugerencias');
+        syncNav();
+        
+        async function loadPlatforms() {
+            try {
+                const result = await listPlatforms();
+                if (result.items) {
+                    renderPlatforms(result.items);
+                } else {
+                    throw new Error('Error al cargar las plataformas');
+                }
+            } catch (error) {
+                document.getElementById('platformsContainer').innerHTML = 
+                    '<div class="error">Error al cargar las plataformas. Intenta recargar la página.</div>';
+            }
+        }
+        
+        // Enhanced platform rendering with richer content
+        function renderPlatforms(platforms) {
+            const container = document.getElementById('platformsContainer');
+            
+            // Group platforms by category
+            const platformsByCategory = platforms.reduce((acc, platform) => {
+                if (!acc[platform.category]) {
+                    acc[platform.category] = [];
+                }
+                acc[platform.category].push(platform);
+                return acc;
+            }, {});
+            
+            const html = Object.entries(platformsByCategory).map(([category, categoryPlatforms]) => `
+                <div class="category-section">
+                    <h2 class="category-title">${category}</h2>
+                    <div class="platforms-grid">
+                        ${categoryPlatforms.map(platform => {
+                            // Generate description if not provided
+                            const description = platform.description || generateDescription(platform);
+                            
+                            return `
+                                <div class="platform-card">
+                                    <div class="platform-image">
+                                        📱
+                                    </div>
+                                    <h3 class="platform-name">${platform.name}</h3>
+                                    <span class="platform-category">${platform.category}</span>
+                                    <p class="platform-description">${description}</p>
+                                    <div class="tools-section">
+                                        <h4>Herramientas disponibles:</h4>
+                                        ${platform.tools && platform.tools.length > 0 ? `
+                                            <div class="tools-chips">
+                                                ${platform.tools.map(tool => `
+                                                    <div class="tool-chip">
+                                                        <span class="tool-name">${tool.name}</span>
+                                                        ${tool.kind ? `<span class="tool-type">(${tool.kind})</span>` : ''}
+                                                        ${tool.website ? `<a href="${tool.website}" target="_blank" class="tool-link">↗</a>` : ''}
+                                                    </div>
+                                                `).join('')}
+                                            </div>
+                                        ` : '<div class="no-tools">Sin herramientas listadas</div>'}
+                                    </div>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = html;
+        }
+        
+        // Function to generate descriptions from platform data
+        function generateDescription(platform) {
+            const toolCount = platform.tools ? platform.tools.length : 0;
+            const toolTypes = platform.tools ? [...new Set(platform.tools.map(t => t.kind).filter(Boolean))] : [];
+            
+            let description = `Plataforma de ${platform.category.toLowerCase()}`;
+            
+            if (toolCount > 0) {
+                description += ` con ${toolCount} herramienta${toolCount > 1 ? 's' : ''} disponible${toolCount > 1 ? 's' : ''}`;
+                
+                if (toolTypes.length > 0) {
+                    description += ` incluyendo ${toolTypes.slice(0, 2).join(' y ')}`;
+                    if (toolTypes.length > 2) {
+                        description += ` y más`;
+                    }
+                }
+            }
+            
+            description += ` para impulsar tu emprendimiento digital.`;
+            return description;
+        }
+        
+        // Load platforms on page load
+        loadPlatforms();
+    </script>
+</body>
+</html>

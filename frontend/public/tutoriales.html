@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriales - Emprende Digital</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+</head>
+<body>
+    <div id="navbar"></div>
+    
+    <main class="tutorials-main">
+        <div class="container">
+            <div class="page-header">
+                <h1>Tutoriales</h1>
+                <p>Encuentra tutoriales específicos para las plataformas y herramientas que necesitas</p>
+            </div>
+            
+            <div class="filters-section">
+                <div class="filters-container">
+                    <div class="filter-group">
+                        <label for="platformFilter">Plataforma:</label>
+                        <select id="platformFilter">
+                            <option value="">Todas las plataformas</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="toolFilter">Herramienta:</label>
+                        <select id="toolFilter">
+                            <option value="">Todas las herramientas</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="searchBtn">Buscar</button>
+                </div>
+            </div>
+            
+            <div class="tutorials-container" id="tutorialsContainer">
+                <div class="loading">Cargando tutoriales...</div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="js/ui.js"></script>
+    <script type="module" src="js/api.js"></script>
+    <script type="module">
+        import { mountNavbar, syncNav } from './js/ui.js';
+        import { listTutorials } from './js/api.js';
+        
+        mountNavbar('tutoriales');
+        syncNav();
+        
+        let allTutorials = [];
+        let platforms = new Set();
+        let tools = new Set();
+        
+        async function loadTutorials(filters = {}) {
+            try {
+                const result = await listTutorials(filters);
+                if (result.items) {
+                    allTutorials = result.items;
+                    
+                    // Extract unique platforms and tools for filters
+                    allTutorials.forEach(tutorial => {
+                        if (tutorial.plataforma) platforms.add(tutorial.plataforma);
+                        if (tutorial.herramienta) tools.add(tutorial.herramienta);
+                    });
+                    
+                    updateFilters();
+                    renderTutorials(allTutorials);
+                } else {
+                    throw new Error('Error al cargar los tutoriales');
+                }
+            } catch (error) {
+                document.getElementById('tutorialsContainer').innerHTML = 
+                    '<div class="error">Error al cargar los tutoriales. Intenta recargar la página.</div>';
+            }
+        }
+        
+        function updateFilters() {
+            const platformFilter = document.getElementById('platformFilter');
+            const toolFilter = document.getElementById('toolFilter');
+            
+            // Update platform filter
+            const currentPlatform = platformFilter.value;
+            platformFilter.innerHTML = '<option value="">Todas las plataformas</option>';
+            Array.from(platforms).sort().forEach(platform => {
+                const option = document.createElement('option');
+                option.value = platform;
+                option.textContent = platform;
+                if (platform === currentPlatform) option.selected = true;
+                platformFilter.appendChild(option);
+            });
+            
+            // Update tool filter
+            const currentTool = toolFilter.value;
+            toolFilter.innerHTML = '<option value="">Todas las herramientas</option>';
+            Array.from(tools).sort().forEach(tool => {
+                const option = document.createElement('option');
+                option.value = tool;
+                option.textContent = tool;
+                if (tool === currentTool) option.selected = true;
+                toolFilter.appendChild(option);
+            });
+        }
+        
+        function renderTutorials(tutorials) {
+            const container = document.getElementById('tutorialsContainer');
+            
+            if (tutorials.length === 0) {
+                container.innerHTML = '<div class="no-results">No se encontraron tutoriales con los filtros seleccionados.</div>';
+                return;
+            }
+            
+            const html = `
+                <div class="tutorials-grid">
+                    ${tutorials.map(tutorial => {
+                        const description = tutorial.description || generateTutorialDescription(tutorial);
+                        const videoEmbed = getVideoEmbed(tutorial.url);
+                        
+                        return `
+                            <div class="tutorial-card">
+                                <div class="tutorial-video">
+                                    ${videoEmbed ? videoEmbed : `
+                                        <div class="tutorial-placeholder">
+                                            <div class="tutorial-placeholder-icon">🎥</div>
+                                            <span>Video tutorial</span>
+                                        </div>
+                                    `}
+                                </div>
+                                <div class="tutorial-content">
+                                    <h3 class="tutorial-title">${tutorial.title}</h3>
+                                    <div class="tutorial-meta">
+                                        <span class="tutorial-platform">${tutorial.plataforma}</span>
+                                        <span class="tutorial-tool">${tutorial.herramienta}</span>
+                                        <span class="tutorial-level level-${tutorial.level.toLowerCase()}">${tutorial.level}</span>
+                                    </div>
+                                    <p class="tutorial-description">${description}</p>
+                                    <div class="tutorial-actions">
+                                        <a href="${tutorial.url}" target="_blank" class="btn btn-primary">
+                                            ${videoEmbed ? 'Ver en YouTube' : 'Ver tutorial'}
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            
+            container.innerHTML = html;
+        }
+        
+        function filterTutorials() {
+            const platformFilter = document.getElementById('platformFilter').value;
+            const toolFilter = document.getElementById('toolFilter').value;
+            
+            let filtered = allTutorials;
+            
+            if (platformFilter) {
+                filtered = filtered.filter(tutorial => tutorial.plataforma === platformFilter);
+            }
+            
+            if (toolFilter) {
+                filtered = filtered.filter(tutorial => tutorial.herramienta === toolFilter);
+            }
+            
+            renderTutorials(filtered);
+        }
+        
+        // Function to generate YouTube embeds
+        function getVideoEmbed(url) {
+            const youtubeRegex = /(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/)([a-zA-Z0-9_-]+)/;
+            const match = url.match(youtubeRegex);
+            
+            if (match) {
+                const videoId = match[1];
+                return `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+            }
+            
+            return null;
+        }
+        
+        // Function to generate tutorial descriptions
+        function generateTutorialDescription(tutorial) {
+            return `Aprende a usar ${tutorial.herramienta} en ${tutorial.plataforma}. Tutorial de nivel ${tutorial.level.toLowerCase()} que te guiará paso a paso para dominar esta herramienta y aplicarla en tu emprendimiento digital.`;
+        }
+
+        // Search button handler
+        document.getElementById('searchBtn').addEventListener('click', filterTutorials);
+        
+        // Filter change handlers
+        document.getElementById('platformFilter').addEventListener('change', filterTutorials);
+        document.getElementById('toolFilter').addEventListener('change', filterTutorials);
+        
+        // Load tutorials on page load
+        loadTutorials();
+    </script>
+</body>
+</html>

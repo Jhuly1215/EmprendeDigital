@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emprende Digital - Plataforma de Emprendimiento Digital</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💡</text></svg>">
+</head>
+<body>
+    <div id="navbar"></div>
+    <main>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <div class="badge">Proyecto final — Técnico Medio</div>
+                        <h1>¿QUÉ ES EL EMPRENDIMIENTO DIGITAL?</h1>
+                        <p>El emprendimiento digital es crear proyectos, negocios o iniciativas usando internet y la tecnología. Desde una tienda en línea hasta una app innovadora, es la forma de transformar ideas en realidades accesibles para todos.</p>
+                    </div>
+                    <div class="hero-image">
+                        <div class="carousel-container">
+                            <div class="carousel" id="heroCarousel" role="region" aria-roledescription="carousel" aria-label="Imágenes de emprendimiento digital">
+                                <div class="carousel-track" id="carouselTrack">
+                                    <div class="carousel-slide active" aria-hidden="false">
+                                        <img src="assets/img/slide1.jpg" alt="Persona trabajando en laptop con proyectos digitales" loading="lazy">
+                                    </div>
+                                    <div class="carousel-slide" aria-hidden="true">
+                                        <img src="assets/img/slide2.jpg" alt="Equipo colaborando en startup digital" loading="lazy">
+                                    </div>
+                                    <div class="carousel-slide" aria-hidden="true">
+                                        <img src="assets/img/slide3.jpg" alt="Análisis de datos y métricas digitales" loading="lazy">
+                                    </div>
+                                    <div class="carousel-slide" aria-hidden="true">
+                                        <img src="assets/img/slide4.jpg" alt="Desarrollo de aplicaciones móviles" loading="lazy">
+                                    </div>
+                                    <div class="carousel-slide" aria-hidden="true">
+                                        <img src="assets/img/slide5.jpg" alt="E-commerce y tienda online" loading="lazy">
+                                    </div>
+                                </div>
+                                <button class="carousel-btn carousel-prev" id="prevBtn" aria-label="Imagen anterior">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="15,18 9,12 15,6"></polyline>
+                                    </svg>
+                                </button>
+                                <button class="carousel-btn carousel-next" id="nextBtn" aria-label="Siguiente imagen">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="9,18 15,12 9,6"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="carousel-dots" id="carouselDots" role="tablist" aria-label="Seleccionar imagen del carrusel">
+                                    <button class="carousel-dot active" data-slide="0" role="tab" aria-selected="true" aria-label="Ir a imagen 1"></button>
+                                    <button class="carousel-dot" data-slide="1" role="tab" aria-selected="false" aria-label="Ir a imagen 2"></button>
+                                    <button class="carousel-dot" data-slide="2" role="tab" aria-selected="false" aria-label="Ir a imagen 3"></button>
+                                    <button class="carousel-dot" data-slide="3" role="tab" aria-selected="false" aria-label="Ir a imagen 4"></button>
+                                    <button class="carousel-dot" data-slide="4" role="tab" aria-selected="false" aria-label="Ir a imagen 5"></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Benefits Section -->
+        <section class="benefits">
+            <div class="container">
+                <h2>Beneficios</h2>
+                <div class="benefits-grid">
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <path d="M2 12h20"></path>
+                                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                            </svg>
+                        </div>
+                        <h3>Alcance global</h3>
+                        <p>Conecta con clientes más allá de tu ciudad.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                <polyline points="7.5,4.21 12,6.81 16.5,4.21"></polyline>
+                                <polyline points="7.5,19.79 7.5,14.6 3,12"></polyline>
+                                <polyline points="21,12 16.5,14.6 16.5,19.79"></polyline>
+                            </svg>
+                        </div>
+                        <h3>Flexibilidad</h3>
+                        <p>Trabaja desde cualquier lugar y administra tu tiempo.</p>
+                    </div>
+                    <div class="benefit-card">
+                        <div class="benefit-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 12l2 2 4-4"></path>
+                                <path d="M21 12c-1 0-3-1-3-3s2-3 3-3 3 1 3 3-2 3-3 3"></path>
+                                <path d="M3 12c1 0 3-1 3-3s-2-3-3-3-3 1-3 3 2 3 3 3"></path>
+                                <path d="M12 3c0 1-1 3-3 3s-3-2-3-3 1-3 3-3 3 2 3 3"></path>
+                                <path d="M12 21c0-1 1-3 3-3s3 2 3 3-1 3-3 3-3-2-3-3"></path>
+                            </svg>
+                        </div>
+                        <h3>Uso de IA</h3>
+                        <p>Aprovecha herramientas inteligentes para automatizar y crecer más rápido.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="cta">
+            <div class="container">
+                <div class="cta-content">
+                    <div class="cta-text">
+                        <h2>¡Déjanos preguntarte más acerca de ti y el <span class="highlight">emprendimiento digital!</span></h2>
+                    </div>
+                    <div class="cta-action">
+                        <a href="/encuesta.html" class="btn btn-accent btn-large">Realizar encuesta</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 Emprende Digital. Proyecto final - Técnico Medio.</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { mountNavbar } from './js/ui.js';
+        
+        // Initialize navbar
+        mountNavbar('inicio');
+        
+        // Initialize carousel
+        class Carousel {
+            constructor(element) {
+                this.carousel = element;
+                this.track = element.querySelector('.carousel-track');
+                this.slides = element.querySelectorAll('.carousel-slide');
+                this.dots = element.querySelectorAll('.carousel-dot');
+                this.prevBtn = element.querySelector('.carousel-prev');
+                this.nextBtn = element.querySelector('.carousel-next');
+                
+                this.currentSlide = 0;
+                this.totalSlides = this.slides.length;
+                this.autoplayInterval = null;
+                this.isPlaying = true;
+                
+                this.init();
+            }
+            
+            init() {
+                this.bindEvents();
+                this.startAutoplay();
+                this.updateAriaLive();
+            }
+            
+            bindEvents() {
+                // Navigation buttons
+                this.prevBtn.addEventListener('click', () => this.prevSlide());
+                this.nextBtn.addEventListener('click', () => this.nextSlide());
+                
+                // Dots navigation
+                this.dots.forEach((dot, index) => {
+                    dot.addEventListener('click', () => this.goToSlide(index));
+                });
+                
+                // Keyboard navigation
+                this.carousel.addEventListener('keydown', (e) => {
+                    if (e.key === 'ArrowLeft') this.prevSlide();
+                    if (e.key === 'ArrowRight') this.nextSlide();
+                });
+                
+                // Pause on hover
+                this.carousel.addEventListener('mouseenter', () => this.pauseAutoplay());
+                this.carousel.addEventListener('mouseleave', () => this.startAutoplay());
+                
+                // Touch events for mobile swipe
+                let startX = 0;
+                let endX = 0;
+                
+                this.carousel.addEventListener('touchstart', (e) => {
+                    startX = e.touches[0].clientX;
+                });
+                
+                this.carousel.addEventListener('touchend', (e) => {
+                    endX = e.changedTouches[0].clientX;
+                    const diff = startX - endX;
+                    
+                    if (Math.abs(diff) > 50) {
+                        if (diff > 0) {
+                            this.nextSlide();
+                        } else {
+                            this.prevSlide();
+                        }
+                    }
+                });
+            }
+            
+            goToSlide(index) {
+                this.currentSlide = index;
+                this.updateSlides();
+                this.updateDots();
+                this.updateAriaLive();
+            }
+            
+            nextSlide() {
+                this.currentSlide = (this.currentSlide + 1) % this.totalSlides;
+                this.updateSlides();
+                this.updateDots();
+                this.updateAriaLive();
+            }
+            
+            prevSlide() {
+                this.currentSlide = (this.currentSlide - 1 + this.totalSlides) % this.totalSlides;
+                this.updateSlides();
+                this.updateDots();
+                this.updateAriaLive();
+            }
+            
+            updateSlides() {
+                this.slides.forEach((slide, index) => {
+                    slide.classList.toggle('active', index === this.currentSlide);
+                    slide.setAttribute('aria-hidden', index !== this.currentSlide);
+                });
+            }
+            
+            updateDots() {
+                this.dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === this.currentSlide);
+                    dot.setAttribute('aria-selected', index === this.currentSlide);
+                });
+            }
+            
+            updateAriaLive() {
+                const liveRegion = this.carousel.querySelector('[aria-live]') || this.carousel;
+                liveRegion.setAttribute('aria-live', 'polite');
+            }
+            
+            startAutoplay() {
+                if (this.isPlaying) {
+                    this.autoplayInterval = setInterval(() => {
+                        this.nextSlide();
+                    }, 5000);
+                }
+            }
+            
+            pauseAutoplay() {
+                if (this.autoplayInterval) {
+                    clearInterval(this.autoplayInterval);
+                    this.autoplayInterval = null;
+                }
+            }
+        }
+        
+        // Initialize carousel
+        const heroCarousel = document.getElementById('heroCarousel');
+        if (heroCarousel) {
+            new Carousel(heroCarousel);
+        }
+    </script>
+</body>
+</html>
+
+<!-- 
+PRUEBAS MANUALES:
+1) Abrir /encuesta.html sin sesión → redirige a /auth.html?next=/encuesta.html
+2) Registrarse → vuelve a /encuesta.html y carga preguntas.
+3) Responder 10 preguntas → Enviar → redirige a /resultados.html y muestra diagnóstico y stats.
+4) Navbar cambia a "Cerrar sesión".
+5) Cerrar sesión → vuelve al home y protege rutas.
+6) Carrusel: auto-rotación cada 5s, pausa al hover, navegación con ←/→ y puntos clicables.
+-->
