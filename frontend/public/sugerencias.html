@@ -23,10 +23,9 @@
         </div>
     </main>
 
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/api.js"></script>
     <script type="module">
-        import { mountNavbar, syncNav } from './js/ui.js';
+        import { mountNavbar} from './js/ui.js';
+        import { syncNav } from './js/auth.js';
         import { listPlatforms } from './js/api.js';
         
         mountNavbar('sugerencias');
@@ -70,7 +69,13 @@
                             return `
                                 <div class="platform-card">
                                     <div class="platform-image">
-                                        📱
+                                        ${platform.img_url
+                                            ? `<img src="${platform.img_url}"
+                                                    alt="Logo/portada de ${platform.name}"
+                                                    loading="lazy"
+                                                    onerror="this.closest('.platform-image').classList.add('img-fallback'); this.remove();" />`
+                                            : ''}
+                                        <span class="platform-fallback">📱</span>
                                     </div>
                                     <h3 class="platform-name">${platform.name}</h3>
                                     <span class="platform-category">${platform.category}</span>

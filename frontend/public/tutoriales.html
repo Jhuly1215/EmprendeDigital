@@ -40,11 +40,9 @@
             </div>
         </div>
     </main>
-
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/api.js"></script>
     <script type="module">
-        import { mountNavbar, syncNav } from './js/ui.js';
+        import { mountNavbar} from './js/ui.js';
+        import { syncNav } from './js/auth.js';
         import { listTutorials } from './js/api.js';
         
         mountNavbar('tutoriales');
@@ -170,16 +168,20 @@
         
         // Function to generate YouTube embeds
         function getVideoEmbed(url) {
-            const youtubeRegex = /(?:youtube\\.com\\/watch\\?v=|youtu\\.be\\/)([a-zA-Z0-9_-]+)/;
+            if (!url || typeof url !== 'string') return null;
+
+            // Regex más completa que acepta youtube.com/watch?v=…, youtu.be/, embed, etc.
+            const youtubeRegex = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|.+\?v=)|youtu\.be\/)([A-Za-z0-9_-]{11})(?:\S+)?$/;
             const match = url.match(youtubeRegex);
-            
-            if (match) {
+
+            if (match && match[1]) {
                 const videoId = match[1];
-                return `<iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>`;
+                return `<iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
             }
-            
+
             return null;
         }
+
         
         // Function to generate tutorial descriptions
         function generateTutorialDescription(tutorial) {

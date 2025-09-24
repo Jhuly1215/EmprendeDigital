@@ -22,7 +22,7 @@
             </div>
             
             <div class="stats-section" id="statsSection" style="display: none;">
-                <h2>Estadísticas Generales</h2>
+                <h2>Estadísticas Generales de Todos los Usuarios</h2>
                 <div class="stats-container" id="statsContainer">
                     <div class="loading">Cargando estadísticas...</div>
                 </div>
@@ -30,153 +30,163 @@
         </div>
     </main>
 
-    <script type="module" src="js/ui.js"></script>
-    <script type="module" src="js/auth.js"></script>
-    <script type="module" src="js/api.js"></script>
-    <script type="module">
-        import { mountNavbar } from './js/ui.js';
-        import { requireAuth, getUser } from './js/auth.js';
-        import { getDiagnosis, getStats } from './js/api.js';
-        
-        // Require authentication
-        requireAuth('/resultados.html');
-        
-        // Initialize navbar
-        mountNavbar('resultados');
-        
-        async function loadResults() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const userId = urlParams.get('user_id') || getUser()?.id;
-            
-            if (!userId) {
-                document.getElementById('resultsContainer').innerHTML = 
-                    '<div class="error">Error: No se pudo obtener el ID de usuario.</div>';
-                return;
-            }
-            
-            try {
-                // Load diagnosis
-                const diagnosisResult = await getDiagnosis(userId);
-                if (diagnosisResult.user_id) {
-                    renderDiagnosis(diagnosisResult);
-                } else {
-                    throw new Error('Error al cargar el diagnóstico');
-                }
-                
-                // Load stats
-                const statsResult = await getStats();
-                if (statsResult.stats) {
-                    renderStats(statsResult.stats);
-                    document.getElementById('statsSection').style.display = 'block';
-                }
-            } catch (error) {
-                document.getElementById('resultsContainer').innerHTML = 
-                    '<div class="error">Error al cargar los resultados. Intenta recargar la página.</div>';
-            }
-        }
-        
-        function renderDiagnosis(diagnosis) {
-            const container = document.getElementById('resultsContainer');
-            
-            const html = `
-                <div class="diagnosis-section">
-                    <div class="archetype-card">
-                        <h2>Tu Arquetipo de Emprendedor</h2>
-                        <div class="archetype-name">${diagnosis.archetype}</div>
-                    </div>
-                    
-                    <div class="recommendations-grid">
-                        <div class="recommendation-section">
-                            <h3>Top Plataformas Recomendadas</h3>
-                            <div class="recommendation-list">
-                                ${diagnosis.platforms.map(platform => `
-                                    <div class="recommendation-item">
-                                        <span class="recommendation-name">${platform.name}</span>
-                                        <div class="recommendation-score">
-                                            <div class="score-bar">
-                                                <div class="score-fill" style="width: ${platform.score}%"></div>
-                                            </div>
-                                            <span class="score-text">${platform.score}%</span>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                        
-                        <div class="recommendation-section">
-                            <h3>Herramientas Sugeridas</h3>
-                            <div class="recommendation-list">
-                                ${diagnosis.tools.map(tool => `
-                                    <div class="recommendation-item">
-                                        <span class="recommendation-name">${tool.name}</span>
-                                        <div class="recommendation-score">
-                                            <div class="score-bar">
-                                                <div class="score-fill" style="width: ${tool.score}%"></div>
-                                            </div>
-                                            <span class="score-text">${tool.score}%</span>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="tutorials-section">
-                        <h3>Tutoriales Recomendados</h3>
-                        <div class="tutorials-grid">
-                            ${diagnosis.tutorials.map(tutorial => `
-                                <div class="tutorial-card">
-                                    <h4>${tutorial.title}</h4>
-                                    <div class="tutorial-meta">
-                                        <span class="tutorial-platform">${tutorial.plataforma}</span>
-                                        <span class="tutorial-tool">${tutorial.herramienta}</span>
-                                        <span class="tutorial-level level-${tutorial.level.toLowerCase()}">${tutorial.level}</span>
-                                    </div>
-                                    <a href="${tutorial.url}" target="_blank" class="btn btn-secondary btn-small">
-                                        Ver tutorial
-                                    </a>
-                                </div>
-                            `).join('')}
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            container.innerHTML = html;
-        }
-        
-        function renderStats(stats) {
-            const container = document.getElementById('statsContainer');
-            
-            // Calculate total votes
-            const totalVotes = stats.reduce((sum, stat) => sum + stat.votos, 0);
-            
-            const html = `
-                <div class="stats-grid">
-                    ${stats.map(stat => {
-                        const percentage = totalVotes > 0 ? Math.round((stat.votos / totalVotes) * 100) : 0;
-                        return `
-                            <div class="stat-item">
-                                <div class="stat-header">
-                                    <span class="stat-question">Pregunta ${stat.q_number}</span>
-                                    <span class="stat-percentage">${percentage}%</span>
-                                </div>
-                                <div class="stat-option">${stat.code}. ${stat.text}</div>
-                                <div class="stat-bar">
-                                    <div class="stat-fill" style="width: ${percentage}%"></div>
-                                </div>
-                                <div class="stat-votes">${stat.votos} votos</div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
-            
-            container.innerHTML = html;
-        }
-        
-        // Load results on page load
-        loadResults();
-    </script>
-</body>
-</html>
+<script type="module">
+  import { mountNavbar } from './js/ui.js';
+  import { requireAuth, getUser } from './js/auth.js';
+  import { getDiagnosis, getStats } from './js/api.js';
+
+  // 1) Requiere sesión (redirige si no hay token)
+  requireAuth('/resultados.html');
+
+  // 2) Navbar
+  mountNavbar('resultados');
+
+  // 3) Cargar resultados
+  async function loadResults() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('user_id') || getUser()?.id;
+
+    if (!userId) {
+      document.getElementById('resultsContainer').innerHTML =
+        '<div class="error">Error: No se pudo obtener el ID de usuario.</div>';
+      return;
+    }
+
+    try {
+      // --- Diagnóstico ---
+      const diag = await getDiagnosis(userId);
+      // Acepta diferentes formas de respuesta: {user_id,...} o {ok:true, data:{...}}
+      const diagnosis = diag?.user_id ? diag : (diag?.data || null);
+      if (!diagnosis) throw new Error(diag?.error || 'Diagnóstico vacío');
+
+      renderDiagnosis({
+        archetype: diagnosis.archetype || 'Sin determinar',
+        platforms: Array.isArray(diagnosis.platforms) ? diagnosis.platforms : [],
+        tools: Array.isArray(diagnosis.tools) ? diagnosis.tools : [],
+        tutorials: Array.isArray(diagnosis.tutorials) ? diagnosis.tutorials : []
+      });
+
+      // --- Estadísticas ---
+      const statsRes = await getStats();
+      const stats = Array.isArray(statsRes?.stats) ? statsRes.stats : [];
+      renderStats(stats);
+      document.getElementById('statsSection').style.display = 'block';
+
+    } catch (err) {
+      console.error('[Resultados] error:', err);
+      document.getElementById('resultsContainer').innerHTML =
+        '<div class="error">Error al cargar los resultados. Inicia sesión de nuevo o intenta más tarde.</div>';
+    }
+  }
+
+  function renderDiagnosis(diagnosis) {
+  const container = document.getElementById('resultsContainer');
+
+  const platformsHtml = (diagnosis.platforms || []).length
+    ? diagnosis.platforms.map((p, i) => `
+      <div class="recommendation-item">
+        <span class="recommendation-rank">#${i+1}</span>
+        <span class="recommendation-name">${p.name}</span>
+        <div class="recommendation-score">
+          <div class="score-bar">
+            <div class="score-fill" style="width:${Number(p.score||0)}%"></div>
+          </div>
+          <span class="score-text">${Number(p.score||0)} pts</span>
+        </div>
+      </div>
+    `).join('')
+    : '<div class="small">Sin datos.</div>';
+
+  const toolsHtml = (diagnosis.tools || []).length
+    ? diagnosis.tools.map((t, i) => `
+      <div class="recommendation-item">
+        <span class="recommendation-rank">#${i+1}</span>
+        <span class="recommendation-name">${t.name}</span>
+        <div class="recommendation-score">
+          <div class="score-bar">
+            <div class="score-fill" style="width:${Number(t.score||0)}%"></div>
+          </div>
+          <span class="score-text">${Number(t.score||0)} pts</span>
+        </div>
+      </div>
+    `).join('')
+    : '<div class="small">Sin datos.</div>';
+
+  const tutsHtml = (diagnosis.tutorials || []).length
+    ? diagnosis.tutorials.map(t => `
+      <div class="tutorial-card">
+        <h4>${t.title}</h4>
+        <div class="tutorial-meta">
+          <span class="tutorial-platform">${t.plataforma || ''}</span>
+          <span class="tutorial-tool">${t.herramienta || ''}</span>
+          <span class="tutorial-level level-${String(t.level||'').toLowerCase()}">${t.level || ''}</span>
+        </div>
+        <a href="${t.url}" target="_blank" class="btn btn-secondary btn-small">Ver tutorial</a>
+      </div>
+    `).join('')
+    : '<div class="small">Aún no hay tutoriales sugeridos.</div>';
+
+  container.innerHTML = `
+    <div class="diagnosis-section">
+      <div class="archetype-card">
+        <h2>Tu Arquetipo de Emprendedor</h2>
+        <div class="archetype-name">${diagnosis.archetype || 'Emprendedor Digital'}</div>
+      </div>
+
+      <div class="recommendations-grid">
+        <div class="recommendation-section">
+          <h3>Top Plataformas Recomendadas</h3>
+          <div class="recommendation-list">${platformsHtml}</div>
+        </div>
+
+        <div class="recommendation-section">
+          <h3>Herramientas Sugeridas</h3>
+          <div class="recommendation-list">${toolsHtml}</div>
+        </div>
+      </div>
+
+      <div class="tutorials-section">
+        <h3>Tutoriales Recomendados</h3>
+        <div class="tutorials-grid">${tutsHtml}</div>
+      </div>
+    </div>
+  `;
+}
+
+
+  // Agrupa stats por pregunta y calcula % por pregunta (no global)
+  function renderStats(stats) {
+    const container = document.getElementById('statsContainer');
+    if (!stats.length) {
+      container.innerHTML = '<div class="small">Sin respuestas aún.</div>';
+      return;
+    }
+    const grouped = stats.reduce((acc, r) => {
+      (acc[r.q_number] ||= []).push(r);
+      return acc;
+    }, {});
+
+    const html = Object.entries(grouped).map(([qnum, rows]) => {
+      const total = rows.reduce((s, r) => s + Number(r.votos || 0), 0) || 1;
+      const items = rows.map(r => {
+        const pct = Math.round((Number(r.votos || 0) / total) * 100);
+        return `
+          <div class="stat-item">
+            <div class="stat-header">
+              <span class="stat-question">P${qnum} · (${r.code})</span>
+              <span class="stat-percentage">${pct}%</span>
+            </div>
+            <div class="stat-option">${r.text}</div>
+            <div class="stat-bar"><div class="stat-fill" style="width:${pct}%"></div></div>
+            <div class="stat-votes">${r.votos} votos</div>
+          </div>
+        `;
+      }).join('');
+      return `<div class="card"><div class="badge">Pregunta ${qnum}</div>${items}</div>`;
+    }).join('');
+
+    container.innerHTML = `<div class="stats-grid">${html}</div>`;
+  }
+
+  loadResults();
+</script>
