@@ -53,9 +53,24 @@ export async function buildDiagnosis(userId) {
   };
   const archetype = map[p2[0]?.code] || 'Emprendedor Digital';
 
-  // tutoriales
+  // ------- TUTORIALES (armar WHERE dinámico, sin IN () ) -------
   const platNames = plat.map(p => p.name);
   const toolNames = tools.map(t => t.name);
+
+  const whereParts = [];
+  const params = [];
+
+  if (platNames.length) {
+    whereParts.push(`p.name IN (?)`);
+    params.push(platNames);
+  }
+  if (toolNames.length) {
+    whereParts.push(`t.name IN (?)`);
+    params.push(toolNames);
+  }
+
+  const whereSQL = whereParts.length ? `WHERE ${whereParts.join(' OR ')}` : '';
+
   const [tuts] = await pool.query(
     `
     SELECT tut.title, tut.url,
@@ -65,12 +80,11 @@ export async function buildDiagnosis(userId) {
     FROM tutorials tut
     LEFT JOIN platforms p ON p.id=tut.platform_id
     LEFT JOIN tools t ON t.id=tut.tool_id
-    WHERE ( (? = 0) OR p.name IN (?))
-       OR ( (? = 0) OR t.name IN (?))
+    ${whereSQL}
     ORDER BY FIELD(tut.level,'Básico','Intermedio','Avanzado'), tut.title
     LIMIT 20
   `,
-    [platNames.length, platNames, toolNames.length, toolNames]
+    params
   );
 
   return { user_id: userId, archetype, platforms: plat, tools, tutorials: tuts };

@@ -2,7 +2,7 @@
 import { pool } from '../db/mysql.js';
 
 export async function listPlatforms() {
-  const [p] = await pool.query(`SELECT id,name,category FROM platforms ORDER BY name`);
+  const [p] = await pool.query(`SELECT id,name,category,img_url FROM platforms ORDER BY name`);
   const ids = p.map(x => x.id);
   const [t] = ids.length
     ? await pool.query(

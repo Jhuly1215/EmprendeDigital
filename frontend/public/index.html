@@ -116,7 +116,9 @@
                         <h2>¡Déjanos preguntarte más acerca de ti y el <span class="highlight">emprendimiento digital!</span></h2>
                     </div>
                     <div class="cta-action">
-                        <a href="/encuesta.html" class="btn btn-accent btn-large">Realizar encuesta</a>
+                        <a href="/encuesta.html" class="btn btn-accent btn-large btn-encuesta">
+                            Realizar encuesta
+                        </a>
                     </div>
                 </div>
             </div>
@@ -262,6 +264,20 @@
         if (heroCarousel) {
             new Carousel(heroCarousel);
         }
+
+        const cta = document.querySelector('.btn-encuesta');
+            if (cta) {
+            cta.addEventListener('click', (e) => {
+                const token = localStorage.getItem('auth_token');
+                const next = '/encuesta.html';
+                if (!token) {
+                e.preventDefault(); // evita ir directo a encuesta
+                window.location.href = `/auth.html?next=${encodeURIComponent(next)}`;
+                }
+                // si hay token, no hacemos preventDefault y el <a> navega a /encuesta.html
+            });
+        }
+        
     </script>
 </body>
 </html>
